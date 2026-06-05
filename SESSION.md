@@ -15,10 +15,18 @@
 - Thread resolution priority: (1) In-Reply-To, (2) References, (3) subject+customer, (4) new.
 - Threading headers on reply: In-Reply-To = rootMessageId, References = full chain, subject stable.
 - Cloud Tasks AI step is stubbed in Phase 0/1 (logs + returns task_id).
-- Seed brand: TrustMatch / hey.trustmatch.io.
-- Subdomain convention: `hey.` (selected from PROJECT.md §16 open decisions).
+- Seed brands: TrustMatch (subdomain TBD), PersonIQ (app.personiq.io ✓ live), WhosCalling (app.whoscalling.io ✓ live).
+- Subdomain convention: **per-brand, decided at setup time** — no fixed prefix. `app.` is used for PersonIQ and WhosCalling; TrustMatch and future brands use whatever subdomain is verified in Resend.
+
+## Live brands (Resend already verified)
+| Brand | Support subdomain | Support sender | No-reply sender | Secret env var |
+|---|---|---|---|---|
+| PersonIQ | app.personiq.io | support@app.personiq.io | no-reply@app.personiq.io | RESEND_WEBHOOK_SECRET_PERSONIQ |
+| WhosCalling | app.whoscalling.io | support@app.whoscalling.io | no-reply@app.whoscalling.io | RESEND_WEBHOOK_SECRET_WHOSCALLING |
+| TrustMatch | TBD | TBD | TBD | RESEND_WEBHOOK_SECRET_TRUSTMATCH |
 
 ## Open questions for owner
+- Confirm exact sender addresses for PersonIQ and WhosCalling (assumed `support@` and `no-reply@` on the subdomain).
 - Resend tier / domain limits — confirm before adding more brands.
 - GCS bucket name and Cloud Tasks queue name for the real deploy.
 - Firebase project ID for deployment.
