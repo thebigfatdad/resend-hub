@@ -26,7 +26,6 @@
 | TrustMatch | TBD | TBD | TBD | RESEND_WEBHOOK_SECRET_TRUSTMATCH |
 
 ## Open questions for owner
-- Confirm exact sender addresses for PersonIQ and WhosCalling (assumed `support@` and `no-reply@` on the subdomain).
 - Resend tier / domain limits — confirm before adding more brands.
 - GCS bucket name and Cloud Tasks queue name for the real deploy.
 - Firebase project ID for deployment.
