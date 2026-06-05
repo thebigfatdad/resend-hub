@@ -25,6 +25,9 @@
 | WhosCalling | app.whoscalling.io | support@app.whoscalling.io | no-reply@app.whoscalling.io | RESEND_WEBHOOK_SECRET_WHOSCALLING |
 | TrustMatch | TBD | TBD | TBD | RESEND_WEBHOOK_SECRET_TRUSTMATCH |
 
+All three brands share one webhook signing secret — one Resend account, one webhook endpoint.
+Webhook endpoint URL: webhook.site placeholder for now; update to Cloud Run URL at deploy time.
+
 ## Open questions for owner
 - Resend tier / domain limits — confirm before adding more brands.
 - GCS bucket name and Cloud Tasks queue name for the real deploy.
