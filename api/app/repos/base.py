@@ -1,0 +1,39 @@
+"""Abstract repository protocols."""
+from __future__ import annotations
+
+from typing import Protocol, runtime_checkable
+
+from app.models.domain import Brand, Customer, Message, Thread
+
+
+@runtime_checkable
+class BrandRepo(Protocol):
+    def get(self, brand_id: str) -> Brand | None: ...
+    def get_by_support_email(self, email: str) -> Brand | None: ...
+    def list(self) -> list[Brand]: ...
+
+
+@runtime_checkable
+class CustomerRepo(Protocol):
+    def get(self, brand_id: str, customer_id: str) -> Customer | None: ...
+    def upsert(self, brand_id: str, customer: Customer) -> None: ...
+
+
+@runtime_checkable
+class ThreadRepo(Protocol):
+    def get(self, thread_id: str) -> Thread | None: ...
+    def create(self, thread: Thread) -> None: ...
+    def update(self, thread_id: str, patch: dict) -> None: ...
+    def list(
+        self,
+        brand_id: str | None = None,
+        status: str | None = None,
+        q: str | None = None,
+        assignee: str | None = None,
+    ) -> list[Thread]: ...
+    def find_by_rfc(self, message_id: str) -> Thread | None: ...
+    def find_by_subject_customer(
+        self, brand_id: str, subject: str, customer_id: str
+    ) -> Thread | None: ...
+    def add_message(self, thread_id: str, message: Message) -> str: ...  # returns messageId
+    def get_messages(self, thread_id: str) -> list[Message]: ...

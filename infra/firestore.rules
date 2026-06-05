@@ -1,0 +1,81 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: check if the authenticated user is an agent with access to a brand
+    function isAgentForBrand(brandId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/agents/$(request.auth.uid))
+        && brandId in get(/databases/$(database)/documents/agents/$(request.auth.uid)).data.brands;
+    }
+
+    // Helper: check if authenticated user is the agent themselves
+    function isSelf(agentId) {
+      return request.auth != null && request.auth.uid == agentId;
+    }
+
+    // No public access — deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // agents/{agentId}: only the agent themselves can read their own doc
+    match /agents/{agentId} {
+      allow read: if isSelf(agentId);
+      allow write: if false;  // written by backend only
+    }
+
+    // brands/{brandId}: only agents with that brandId in their brands[] array
+    match /brands/{brandId} {
+      allow read: if isAgentForBrand(brandId);
+      allow write: if isAgentForBrand(brandId);
+
+      // brands/{brandId}/customers/{customerId}
+      match /customers/{customerId} {
+        allow read: if isAgentForBrand(brandId);
+        allow write: if isAgentForBrand(brandId);
+      }
+    }
+
+    // threads/{threadId}: agents scoped to thread.brandId
+    match /threads/{threadId} {
+      allow read: if request.auth != null
+        && isAgentForBrand(resource.data.brandId);
+      allow write: if request.auth != null
+        && isAgentForBrand(resource.data.brandId);
+
+      // threads/{threadId}/messages/{messageId}
+      match /messages/{messageId} {
+        allow read: if request.auth != null
+          && isAgentForBrand(get(/databases/$(database)/documents/threads/$(threadId)).data.brandId);
+        allow write: if request.auth != null
+          && isAgentForBrand(get(/databases/$(database)/documents/threads/$(threadId)).data.brandId);
+      }
+    }
+
+    // kb/{brandId}: agents scoped to the brand
+    match /kb/{brandId} {
+      allow read: if isAgentForBrand(brandId);
+      allow write: if isAgentForBrand(brandId);
+
+      match /articles/{articleId} {
+        allow read: if isAgentForBrand(brandId);
+        allow write: if isAgentForBrand(brandId);
+      }
+
+      match /gaps/{gapId} {
+        allow read: if isAgentForBrand(brandId);
+        allow write: if isAgentForBrand(brandId);
+      }
+    }
+
+    // voiceProfiles/{voiceProfileId}: agents scoped to voiceProfile.brandId
+    match /voiceProfiles/{voiceProfileId} {
+      allow read: if request.auth != null
+        && isAgentForBrand(resource.data.brandId);
+      allow write: if request.auth != null
+        && isAgentForBrand(resource.data.brandId);
+    }
+  }
+}
